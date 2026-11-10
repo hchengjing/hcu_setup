@@ -1,0 +1,16 @@
+<launch>
+  <!-- Empty serial = first camera found -->
+  <arg name="serial" default="" />
+  <arg name="frame_id" default="camera" />
+  <!-- usbipd cannot carry the camera's full rate; raise carefully -->
+  <arg name="frame_rate" default="20.0" />
+
+  <node pkg="hik_camera" type="hik_camera_node.py" name="hik_camera" output="screen">
+    <!-- MVS SDK runtime, normally set by the installer in ~/.bashrc -->
+    <env name="MVCAM_COMMON_RUNENV" value="/opt/MVS/lib" />
+    <env name="LD_LIBRARY_PATH" value="/opt/MVS/lib/64:$(optenv LD_LIBRARY_PATH)" />
+    <param name="serial" value="$(arg serial)" />
+    <param name="frame_id" value="$(arg frame_id)" />
+    <param name="frame_rate" value="$(arg frame_rate)" />
+  </node>
+</launch>

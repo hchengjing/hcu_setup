@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>hik_camera</name>
+  <version>0.0.0</version>
+  <description>Hikrobot MVS USB3 camera publisher for the UMI-3D rig</description>
+  <maintainer email="haochengjing365@gmail.com">haoch</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+</package>

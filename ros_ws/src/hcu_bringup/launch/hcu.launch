@@ -1,0 +1,31 @@
+<launch>
+  <!-- Device toggles -->
+  <arg name="lidar" default="true" />
+  <arg name="camera" default="true" />
+  <arg name="gripper" default="true" />
+  <!-- Live LiDAR/IMU mapping (img_en is 0 in mid360_180.yaml, so the camera is not fused) -->
+  <arg name="mapping" default="false" />
+
+  <arg name="camera_frame_rate" default="20.0" />
+  <arg name="gripper_port" default="/dev/inspire_gripper" />
+  <arg name="traj_csv" default="/tmp/umi_traj.csv" />
+
+  <param name="/use_sim_time" value="false" />
+
+  <!-- MID-360S, CustomMsg on /livox/lidar + /livox/imu -->
+  <include if="$(arg lidar)" file="$(find livox_ros_driver2)/launch_ROS1/msg_MID360s.launch" />
+
+  <!-- Hikrobot camera on /left_camera/image -->
+  <include if="$(arg camera)" file="$(find hik_camera)/launch/hik_camera.launch">
+    <arg name="frame_rate" value="$(arg camera_frame_rate)" />
+  </include>
+
+  <!-- Inspire gripper: /gripper/position out, /gripper/command in -->
+  <node if="$(arg gripper)" pkg="inspire_gripper" type="gripper_node.py" name="inspire_gripper" output="screen">
+    <param name="port" value="$(arg gripper_port)" />
+  </node>
+
+  <include if="$(arg mapping)" file="$(find umi_3d_slam)/launch/mapping_mid360_180_min.launch">
+    <arg name="traj_csv" value="$(arg traj_csv)" />
+  </include>
+</launch>

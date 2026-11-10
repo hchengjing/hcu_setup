@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>hcu_bringup</name>
+  <version>0.0.0</version>
+  <description>One-command bringup and recording for the NUC UMI-3D rig (MID-360S, Hikrobot camera, Inspire gripper)</description>
+  <maintainer email="haochengjing365@gmail.com">haoch</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>livox_ros_driver2</exec_depend>
+  <exec_depend>hik_camera</exec_depend>
+  <exec_depend>inspire_gripper</exec_depend>
+  <exec_depend>umi_3d_slam</exec_depend>
+  <exec_depend>rosbag</exec_depend>
+</package>

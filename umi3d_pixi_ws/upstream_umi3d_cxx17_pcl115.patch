@@ -1,0 +1,105 @@
+diff --git a/umi_3d_slam_ws/src/livox_ros_driver/CMakeLists.txt b/umi_3d_slam_ws/src/livox_ros_driver/CMakeLists.txt
+index 75df1ac..46e25c2 100644
+--- a/umi_3d_slam_ws/src/livox_ros_driver/CMakeLists.txt
++++ b/umi_3d_slam_ws/src/livox_ros_driver/CMakeLists.txt
+@@ -77,7 +77,7 @@ endif()
+ #---------------------------------------------------------------------------------------
+ # Compiler config
+ #---------------------------------------------------------------------------------------
+-set(CMAKE_CXX_STANDARD 11)
++set(CMAKE_CXX_STANDARD 17)
+ set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ set(CMAKE_CXX_EXTENSIONS OFF)
+ 
+@@ -182,6 +182,7 @@ target_include_directories(${PROJECT_NAME}_node
+     ${APR_INCLUDE_DIRS}
+     common
+     common/rapidjson
++    /usr/local/include
+     comon/rapdidxml
+     common/comm
+     timesync
+@@ -193,7 +194,7 @@ target_include_directories(${PROJECT_NAME}_node
+ # link libraries
+ #---------------------------------------------------------------------------------------
+ target_link_libraries(${PROJECT_NAME}_node
+-	livox_sdk_static.a
++	${LIVOX_SDK_LIBRARY}
+ 	${Boost_LIBRARY}
+ 	${catkin_LIBRARIES}
+ 	${PCL_LIBRARIES}
+diff --git a/umi_3d_slam_ws/src/livox_ros_driver/livox_ros_driver/lddc.cpp b/umi_3d_slam_ws/src/livox_ros_driver/livox_ros_driver/lddc.cpp
+index a71943d..e56c961 100644
+--- a/umi_3d_slam_ws/src/livox_ros_driver/livox_ros_driver/lddc.cpp
++++ b/umi_3d_slam_ws/src/livox_ros_driver/livox_ros_driver/lddc.cpp
+@@ -350,11 +350,11 @@ uint32_t Lddc::PublishPointcloudData(LidarDataQueue *queue, uint32_t packet_num,
+ 
+   ros::Publisher *p_publisher = Lddc::GetCurrentPublisher(handle);
+   if (kOutputToRos == output_type_) {
+-    p_publisher->publish(cloud);
++    p_publisher->publish(*cloud);
+   } else {
+     if (bag_ && enable_lidar_bag_) {
+       bag_->write(p_publisher->getTopic(), ros::Time(timestamp / 1000000000.0),
+-                  cloud);
++                  *cloud);
+     }
+   }
+   if (!lidar->data_is_pubulished) {
+diff --git a/umi_3d_slam_ws/src/livox_ros_driver/timesync/timesync.h b/umi_3d_slam_ws/src/livox_ros_driver/timesync/timesync.h
+index 71a1d1d..e65c630 100644
+--- a/umi_3d_slam_ws/src/livox_ros_driver/timesync/timesync.h
++++ b/umi_3d_slam_ws/src/livox_ros_driver/timesync/timesync.h
+@@ -25,6 +25,7 @@
+ #ifndef TIMESYNC_TIMESYNC_H_
+ #define TIMESYNC_TIMESYNC_H_
+ 
++#include <memory>
+ #include <thread>
+ #include "comm_device.h"
+ #include "comm_protocol.h"
+diff --git a/umi_3d_slam_ws/src/rpg_vikit-master/vikit_common/CMakeLists.txt b/umi_3d_slam_ws/src/rpg_vikit-master/vikit_common/CMakeLists.txt
+index 97f097d..2a01974 100644
+--- a/umi_3d_slam_ws/src/rpg_vikit-master/vikit_common/CMakeLists.txt
++++ b/umi_3d_slam_ws/src/rpg_vikit-master/vikit_common/CMakeLists.txt
+@@ -21,9 +21,9 @@ else()
+ endif()
+ 
+ IF(CMAKE_COMPILER_IS_GNUCC)
+-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+ ELSE()
+-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+ ENDIF()
+ SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -fsee -fomit-frame-pointer -fno-signed-zeros -fno-math-errno -funroll-loops")
+ 
+diff --git a/umi_3d_slam_ws/src/rpg_vikit-master/vikit_ros/CMakeLists.txt b/umi_3d_slam_ws/src/rpg_vikit-master/vikit_ros/CMakeLists.txt
+index 252fcc3..d8a89eb 100644
+--- a/umi_3d_slam_ws/src/rpg_vikit-master/vikit_ros/CMakeLists.txt
++++ b/umi_3d_slam_ws/src/rpg_vikit-master/vikit_ros/CMakeLists.txt
+@@ -8,9 +8,9 @@ SET(CMAKE_VERBOSE_MAKEFILE OFF)
+ SET(CMAKE_CXX_FLAGS "-Wall -D_LINUX -D_REENTRANT -march=native -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-pragmas")
+ SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
+ IF(CMAKE_COMPILER_IS_GNUCC)
+-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+ ELSE()
+-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
++  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+ ENDIF()
+ 
+ # Add catkin and required ROS packages
+diff --git a/umi_3d_slam_ws/src/umi_3d_slam/launch/mapping_mid360_180.launch b/umi_3d_slam_ws/src/umi_3d_slam/launch/mapping_mid360_180.launch
+index 840a258..754ffea 100644
+--- a/umi_3d_slam_ws/src/umi_3d_slam/launch/mapping_mid360_180.launch
++++ b/umi_3d_slam_ws/src/umi_3d_slam/launch/mapping_mid360_180.launch
+@@ -36,7 +36,7 @@
+     <param name="lost_topic"  value="/livo_frame_lost"/>
+ 
+     <!-- output -->
+-    <param name="csv_path" value="$(env HOME)/A_LIVO_UMI/src/FAST-LIVO2/output/camera_trajectory.csv"/>
++    <param name="csv_path" value="$(find umi_3d_slam)/output/camera_trajectory.csv"/>
+     <param name="overwrite" value="true"/>
+     <param name="use_relative_time" value="false"/>
+ 
