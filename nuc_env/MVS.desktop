@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=5.0.0
+Encoding=UTF-8
+Name=MVS
+Type=Application
+Exec=/opt/MVS/bin/MVS.sh
+Icon=/opt/MVS/bin/DesktopLink/MVS.ico
+Terminal=false
+X-GNOME-Autostart-enabled=true
+DBusActivatable=false
